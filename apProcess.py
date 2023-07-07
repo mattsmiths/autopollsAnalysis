@@ -54,7 +54,9 @@ if writeVid:
 # Getting CWD and making new folder for videos 
 csvDir1 = os.getcwd()+'/APprocess/'+'APcsv/'
 if not os.path.isdir(csvDir1):os.makedirs(csvDir1)
+for ele in range(0,3):print('')
 print('Writing files to: '+os.getcwd()+'/APprocess/')
+for ele in range(0,2):print('')
 # Getting directories for a specific unit
 print('###########################')
 print('### Mapping directories ###')
