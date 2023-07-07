@@ -54,12 +54,16 @@ if writeVid:
 # Getting CWD and making new folder for videos 
 csvDir1 = os.getcwd()+'/APprocess/'+'APcsv/'
 if not os.path.isdir(csvDir1):os.makedirs(csvDir1)
-
+print('Writing files to: '+os.getcwd()+'/APprocess/')
 # Getting directories for a specific unit
+print('###########################')
+print('### Mapping directories ###')
+print('###########################')
+
 out = [x[0] for x in os.walk(getDir) \
     if (x[0].find('detections')!= -1 \
     and x[0].find('.Trash') == -1 \
-    and x[0].find('_4/23') != -1)]
+    and x[0].find('_4/2') != -1)]
 
 
 # For each day directory populataed with detection data
