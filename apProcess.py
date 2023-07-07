@@ -162,7 +162,7 @@ for day1 in out:
                     fullIm = cv.putText(fullIm, tP, org, font,fontScale, color, thickness, cv.LINE_AA)
                     vidOut.write(fullIm)
                     vidCount+=1
-                    if vidCount >= 1000:
+                    if vidCount >= 400:
                         vidM+=1
                         vidCount = 0
                         vidOut = cv.VideoWriter(vidDir1+'test_%02d.avi'%vidM,cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
