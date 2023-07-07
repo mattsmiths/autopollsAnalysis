@@ -22,8 +22,8 @@ def cmdline_run():
         '-r', '--resolution', default='small',
         help='set camera resolution "small" default, options: small, medium, medium2, large')
     parser.add_argument(
-        '-t', '--threshold', default=0.5,
-        help='inclusion threshold as proportion out of 1, default: 0.5')
+        '-t', '--threshold', default=0.45,
+        help='inclusion threshold as proportion out of 1, default: 0.45')
     parser.add_argument(
         '-v', '--videoSample', default=False, action='store_true',
         help='Run selected model across example video, creates new csv')
@@ -115,7 +115,7 @@ for day1 in out:
                 bbx = np.squeeze(bbx)
                 if len(np.shape(bbx)) == 2:
                     for bbx2 in bbx:
-                        if bbx2[1] < 0.45:
+                        if bbx2[1] < float(thresh):
                             break
                         
                         # Append to list of high confidence detections, write image to vid if applicable
@@ -136,7 +136,7 @@ for day1 in out:
                     if np.shape(bboxI) == (3,) and np.shape(bbx) == ():
                         bbx = bboxI
                         oH = True
-                    if bbx[1] < 0.45:
+                    if bbx[1] < float(thresh):
                         break
                     
                     allConf.append(bbx[1])
