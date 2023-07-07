@@ -48,8 +48,10 @@ if writeVid:
 
     # Getting CWD and making new folder for videos 
     vidDir1 = os.getcwd()+'/APprocess/'+'APvideos/'
-    if os.path.isdir(vidDir1):os.makedirs(vidDir1)
-    vidOut = cv.VideoWriter(vidDir1+'test.avi',cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
+    vidCount = 0
+    vidM = 0
+    if not os.path.isdir(vidDir1):os.makedirs(vidDir1)
+    vidOut = cv.VideoWriter(vidDir1+'test_00.avi',cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
 
 # Getting CWD and making new folder for videos 
 csvDir1 = os.getcwd()+'/APprocess/'+'APcsv/'
@@ -151,7 +153,7 @@ for day1 in out:
                         org1 = (pt1[0]-25,pt1[1]-25)
                         tP = str(np.round(bbx[1],3))+'%'
                         fullIm = cv.putText(fullIm, tP, org1, font,2, color, 2, cv.LINE_AA)
-                        
+
                     if oH:
                         continue
             if writeIM:
@@ -159,6 +161,11 @@ for day1 in out:
                     tP = day1.split('/')[-2]+' '+lb['meta']['datetime'].split(' ')[1]
                     fullIm = cv.putText(fullIm, tP, org, font,fontScale, color, thickness, cv.LINE_AA)
                     vidOut.write(fullIm)
+                    vidCount+=1
+                    if vidCount >= 1000:
+                        vidM+=1
+                        vidCount = 0
+                        vidOut = cv.VideoWriter(vidDir1+'test_%02d.avi'%vidM,cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
             
             
                 tempKey['unitID'].append('XXXXX')
