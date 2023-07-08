@@ -36,22 +36,6 @@ thresh = args.threshold
 getDir = args.directory_main
 writeVid = args.videoSample
 
-# Settings for video generation
-if writeVid:
-    font = cv.FONT_HERSHEY_SIMPLEX
-    fldFind = datetime.datetime.now()
-    fldFind2 = str(fldFind.year)[2:]+'%02d'%fldFind.month+'%02d'%fldFind.day
-    org = (100, 100)
-    fontScale = 4
-    color = (255, 0, 0)
-    thickness = 7
-
-    # Getting CWD and making new folder for videos 
-    vidDir1 = os.getcwd()+'/APprocess/'+'APvideos/'
-    vidCount = 0
-    vidM = 0
-    if not os.path.isdir(vidDir1):os.makedirs(vidDir1)
-    vidOut = cv.VideoWriter(vidDir1+'test_00.avi',cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
 
 # Getting CWD and making new folder for videos 
 csvDir1 = os.getcwd()+'/APprocess/'+'APcsv/'
@@ -68,7 +52,10 @@ out = [x[0] for x in os.walk(getDir) \
     if (x[0].find('detections')!= -1 \
     and x[0].find('.Trash') == -1 \
     and x[0].find('_4/2') != -1)]
-
+for ele in range(0,1):print('')
+print('    Done mapping    ')
+print('    '+str(len(out))+' directories found')
+for ele in range(0,1):print('')
 
 # For each day directory populataed with detection data
 for day1 in out:
@@ -91,6 +78,25 @@ for day1 in out:
         allIms = glob.glob(day1+'*.json')
         allIms.sort()
         grab4 = np.arange(0,len(allIms))
+
+        # Assumption that AP_ID is the directory title before the "detection" folder 
+        AP_ID = day1.split('/')[-5]
+        
+        # If writing video then prepare the file to write to
+        if writeVid:
+            font = cv.FONT_HERSHEY_SIMPLEX
+            org = (100, 100)
+            fontScale = 4
+            color = (255, 0, 0)
+            thickness = 7
+        
+            # Getting CWD and making new folder for videos 
+            vidDir1 = os.getcwd()+'/APprocess/'+'APvideos/'
+            vidCount = 0
+            vidM = 0
+            if not os.path.isdir(vidDir1):os.makedirs(vidDir1)
+            
+            vidOut = cv.VideoWriter(vidDir1+AP_ID+'_00.avi',cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
         
         # For all images in a specific unit / camera / day
         for seq1,image1 in enumerate(grab4.astype(np.int)):
@@ -165,10 +171,11 @@ for day1 in out:
                     if vidCount >= 400:
                         vidM+=1
                         vidCount = 0
-                        vidOut = cv.VideoWriter(vidDir1+'test_%02d.avi'%vidM,cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
+                        vidOut.release()
+                        vidOut = cv.VideoWriter(vidDir1+AP_ID+'_%02d.avi'%vidM,cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
             
             
-                tempKey['unitID'].append('XXXXX')
+                tempKey['unitID'].append(AP_ID)
                 tempKey['camID'].append(day1.split('/')[-3])
                 tempKey['datetime'].append(lb['meta']['datetime'])
                 tempKey['date'].append(lb['meta']['datetime'].split(' ')[0])
@@ -186,9 +193,9 @@ for day1 in out:
             for nnmes in tempKey.keys():
                 tempK.append(tempKey[nnmes][ind])
             allValues.append(tempK)
-        headers = ['unitID','camID','datetime','timestamp','image_filepath','json_filepath','confidence','bbox']
+        headers = ['unitID','camID','datetime','date','time','timestamp','image_filepath','json_filepath','confidence','bbox']
 
-        tempCSV = csvDir1+day1.split('/')[-3]+'_'+day1.split('/')[-2]+'.csv'
+        tempCSV = csvDir1+day1.split('/')[-5]+day1.split('/')[-3]+'_'+day1.split('/')[-2]+'.csv'
         with open(tempCSV, 'w') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(headers)
