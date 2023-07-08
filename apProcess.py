@@ -195,7 +195,7 @@ for day1 in out:
             allValues.append(tempK)
         headers = ['unitID','camID','datetime','date','time','timestamp','image_filepath','json_filepath','confidence','bbox']
 
-        tempCSV = csvDir1+day1.split('/')[-5]+day1.split('/')[-3]+'_'+day1.split('/')[-2]+'.csv'
+        tempCSV = csvDir1+day1.split('/')[-5]+'_'+day1.split('/')[-3]+'_'+day1.split('/')[-2]+'.csv'
         with open(tempCSV, 'w') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(headers)
