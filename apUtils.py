@@ -30,7 +30,7 @@ class intialize:
         self.thresh = args.threshold
         self.getdir = args.directory_main
         self.writevid = args.videoSample
-        self.csvDir = os.getcwd()+'/APprocess/'+'APcsv/'
+        
 
 
         # Getting CWD and making new folder for videos
@@ -47,9 +47,9 @@ class intialize:
         
         
     def mapDirectory(self):
-        # Getting CWD and making new folder for videos 
-        csvDir1 = self.csvDir
-        if not os.path.isdir(csvDir1):os.makedirs(csvDir1)
+        # Getting CWD and making new folder for videos
+        basedir = os.getcwd()+'/APprocess/' 
+        if not os.path.isdir(basedir):os.makedirs(basedir)
         for ele in range(0,3):print('')
         print('Writing files to: '+os.getcwd()+'/APprocess/')
         for ele in range(0,2):print('')
@@ -92,9 +92,10 @@ class intialize:
         self.dir1 = dir1
         
     def initializeVidOut(self):
-        self.vidDir1 = os.getcwd()+'/APprocess/'+'APvideos/'+self.AP_ID+'/'
+        self.vidDir1 = os.getcwd()+'/APprocess/'+'APvideos/'+self.AP_ID+'/'+self.cam_ID+'/'
         if not os.path.isdir(self.vidDir1):os.makedirs(self.vidDir1)
-        self.videoName = self.vidDir1+self.AP_ID+'-'+self.cam_ID+'-%02d.avi'%self.vidM
+        self.date1 = self.dir1.split('/')[-2]
+        self.videoName = self.vidDir1+self.AP_ID+'-'+self.cam_ID+'-'+self.date1+'-%02d.avi'%self.vidM
         self.vidOut = cv.VideoWriter(self.videoName,cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
     
     
@@ -132,9 +133,9 @@ class intialize:
             for nnmes in self.csvdict.keys():
                 tempK.append(self.csvdict[nnmes][ind])
             allValues.append(tempK)
-        headers = ['unitID','camID','datetime','date','time','timestamp','image_filepath','json_filepath','confidence','bbox']
-
-        self.csvDir = self.csvDir+self.AP_ID+'/'
+       #headers = ['unitID','camID','datetime','date','time','timestamp','image_filepath','json_filepath','confidence','bbox']
+        headers = [ele for ele in self.csvdict.keys()]
+        self.csvDir = os.getcwd()+'/APprocess/'+'APcsv/'+self.AP_ID+'/'+self.cam_ID+'/'
         tempCSV = self.csvDir+self.AP_ID+'_'+self.cam_ID+'_'+self.dir1.split('/')[-2]+'.csv'
         self.csvfilename = tempCSV
         if not os.path.isdir(self.csvDir):os.makedirs(self.csvDir)
@@ -147,7 +148,7 @@ class intialize:
                 
     def outputFig(self):
         # Getting CWD and making new folder for videos 
-        figDir1 = os.getcwd()+'/APprocess/'+'APfigs/'+self.AP_ID+'/'
+        figDir1 = os.getcwd()+'/APprocess/'+'APfigs/'+self.AP_ID+'/'+self.cam_ID+'/'
         self.figdir = figDir1
         if not os.path.isdir(figDir1):os.makedirs(figDir1)
         plt.figure(figsize=(6,3),dpi=200)

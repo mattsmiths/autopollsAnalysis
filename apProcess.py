@@ -106,9 +106,9 @@ for day1 in out:
                         init_base.initializeVidOut()
 
                 init_base.updateDict(allIms[image1],allConf,allBbx)
-
-        init_base.outputCSV()
-        init_base.outputFig()
+        if len(init_base.csvdict['unitID']) > 0:
+            init_base.outputCSV()
+            init_base.outputFig()
 
             
     if init_base.writevid:
