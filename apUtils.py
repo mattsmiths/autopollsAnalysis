@@ -10,15 +10,7 @@ from matplotlib import pyplot as plt
 
 class intialize:
     
-    ## interpret command line flags ##
-    def cmdline_run():
- 
-        return args
-
     def __init__(self):
-        self.csvDir = os.getcwd()+'/APprocess/'+'APcsv/'
-        # Grab any command line flags
-        #args = cmdline_run()
 
         parser = argparse.ArgumentParser()
         parser.add_argument(
@@ -38,7 +30,22 @@ class intialize:
         self.thresh = args.threshold
         self.getdir = args.directory_main
         self.writevid = args.videoSample
+        self.csvDir = os.getcwd()+'/APprocess/'+'APcsv/'
 
+
+        # Getting CWD and making new folder for videos
+        self.font = cv.FONT_HERSHEY_SIMPLEX
+        self.org = (100, 100)
+        self.fontScale = 4
+        self.color = (255, 0, 0)
+        self.bbxcolor = (195,100,100,100)
+        self.thickness = 20 
+        self.textthickness = 7
+        self.vidCount = 0
+        self.vidM = 0
+        
+        
+        
     def mapDirectory(self):
         # Getting CWD and making new folder for videos 
         csvDir1 = self.csvDir
@@ -61,5 +68,98 @@ class intialize:
         for ele in range(0,1):print('')
         return out
 
+    def openim(self,impath):
+        self.currimpath = impath
+        self.currim = cv.imread(impath)
 
+    def initializeCSV(self,dir1):
+        self.csvdict = {}
+        self.csvdict['unitID'] = []
+        self.csvdict['camID'] = []
+        self.csvdict['datetime'] = []
+        self.csvdict['date'] = []
+        self.csvdict['time'] = []
+        self.csvdict['timestamp'] = []
+        self.csvdict['image_filepath'] = []
+        self.csvdict['json_filepath'] = []
+        self.csvdict['confidence'] = []
+        self.csvdict['bbox'] = []
+        
+        
+        # Assumption that AP_ID is the directory title before the "detection" folder 
+        self.AP_ID = dir1.split('/')[-5]
+        self.cam_ID = dir1.split('/')[-3]
+        self.dir1 = dir1
+        
+    def initializeVidOut(self):
+        self.vidDir1 = os.getcwd()+'/APprocess/'+'APvideos/'+self.AP_ID+'/'
+        if not os.path.isdir(self.vidDir1):os.makedirs(self.vidDir1)
+        self.videoName = self.vidDir1+self.AP_ID+'-'+self.cam_ID+'-%02d.avi'%self.vidM
+        self.vidOut = cv.VideoWriter(self.videoName,cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
     
+    
+    def addBbx(self,bbxes,inferenceOut):
+
+        self.currim = cv.rectangle(self.currim, bbxes[0],bbxes[1], self.bbxcolor, self.thickness)
+        org1 = (bbxes[0][0]-25,bbxes[0][1]-25)
+        tP = str(np.round(inferenceOut[1],3))+'%'
+        self.currim = cv.putText(self.currim, tP, org1, self.font,2, self.color, 2, cv.LINE_AA)
+        
+        
+    def videoUpdate(self,lb):
+        self.detection = lb
+        tP = self.dir1.split('/')[-2]+' '+lb['meta']['datetime'].split(' ')[1]
+        fullIm = cv.putText(self.currim, tP, self.org, self.font,self.fontScale, self.color, self.textthickness, cv.LINE_AA)
+        self.vidOut.write(fullIm)
+        
+    def updateDict(self,jsonDir,allConf,allBbx):
+        self.csvdict['unitID'].append(self.AP_ID)
+        self.csvdict['camID'].append(self.dir1.split('/')[-3])
+        self.csvdict['datetime'].append(self.detection['meta']['datetime'])
+        self.csvdict['date'].append(self.detection['meta']['datetime'].split(' ')[0])
+        self.csvdict['time'].append(self.detection['meta']['datetime'].split(' ')[1])
+        self.csvdict['timestamp'].append(datetime.datetime.fromisoformat(self.detection['meta']['datetime']).timestamp())
+        self.csvdict['image_filepath'].append(self.currimpath)
+        self.csvdict['json_filepath'].append(jsonDir)
+        self.csvdict['confidence'].append(allConf)
+        self.csvdict['bbox'].append(allBbx)
+        
+    def outputCSV(self):
+        # Create list from dictionary 
+        allValues = []
+        for ind,ele in enumerate(self.csvdict['unitID']):
+            tempK = []
+            for nnmes in self.csvdict.keys():
+                tempK.append(self.csvdict[nnmes][ind])
+            allValues.append(tempK)
+        headers = ['unitID','camID','datetime','date','time','timestamp','image_filepath','json_filepath','confidence','bbox']
+
+        self.csvDir = self.csvDir+self.AP_ID+'/'
+        tempCSV = self.csvDir+self.AP_ID+'_'+self.cam_ID+'_'+self.dir1.split('/')[-2]+'.csv'
+        self.csvfilename = tempCSV
+        if not os.path.isdir(self.csvDir):os.makedirs(self.csvDir)
+        
+        with open(tempCSV, 'w') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(headers)
+            for ele in allValues:
+                writer.writerow(ele)
+                
+    def outputFig(self):
+        # Getting CWD and making new folder for videos 
+        figDir1 = os.getcwd()+'/APprocess/'+'APfigs/'+self.AP_ID+'/'
+        self.figdir = figDir1
+        if not os.path.isdir(figDir1):os.makedirs(figDir1)
+        plt.figure(figsize=(6,3),dpi=200)
+        
+        tFirst = datetime.datetime.fromisoformat(self.csvdict['date'][0]+' 05:00').timestamp()
+        tLast = datetime.datetime.fromisoformat(self.csvdict['date'][0]+' 22:00').timestamp()
+        indx = np.arange(tFirst,tLast,60*30)
+        indx2 = np.arange(tFirst,tLast,60*120)
+        xll = ['%02d:%02d'%(datetime.datetime.fromtimestamp(ele).hour,datetime.datetime.fromtimestamp(ele).minute) for ele in indx2]
+        plt.hist(self.csvdict['timestamp'],indx,color=(0.25,0.25,0.25,0.5))
+        plt.xticks(np.arange(tFirst,tLast,60*120),xll)
+        plt.ylabel('Count')
+        tempPDF = self.figdir+self.AP_ID+'_'+self.cam_ID+'_'+self.dir1.split('/')[-2]+'.pdf'
+        self.pdffilename = tempPDF
+        plt.savefig(tempPDF,dpi=200)

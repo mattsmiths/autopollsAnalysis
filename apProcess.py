@@ -20,60 +20,34 @@ out = init_base.mapDirectory()
 
 
 
-
 # For each day directory populataed with detection data
 for day1 in out:
     day1+='/'
     
     # Checking that the directory is for a camera 
     if day1.split('/')[-3].find('1_') != -1:
-        tempKey = {}
-        tempKey['unitID'] = []
-        tempKey['camID'] = []
-        tempKey['datetime'] = []
-        tempKey['date'] = []
-        tempKey['time'] = []
-        tempKey['timestamp'] = []
-        tempKey['image_filepath'] = []
-        tempKey['json_filepath'] = []
-        tempKey['confidence'] = []
-        tempKey['bbox'] = []
+        init_base.initializeCSV(day1)
         
         allIms = glob.glob(day1+'*.json')
         allIms.sort()
         grab4 = np.arange(0,len(allIms))
 
-        # Assumption that AP_ID is the directory title before the "detection" folder 
-        AP_ID = day1.split('/')[-5]
-        
         # If writing video then prepare the file to write to
         if init_base.writevid:
-            font = cv.FONT_HERSHEY_SIMPLEX
-            org = (100, 100)
-            fontScale = 4
-            color = (255, 0, 0)
-            thickness = 7
-        
-            # Getting CWD and making new folder for videos 
-            vidDir1 = os.getcwd()+'/APprocess/'+'APvideos/'
-            vidCount = 0
-            vidM = 0
-            if not os.path.isdir(vidDir1):os.makedirs(vidDir1)
-            
-            vidOut = cv.VideoWriter(vidDir1+AP_ID+'_00.avi',cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
+            init_base.initializeVidOut()
         
         # For all images in a specific unit / camera / day
-        for seq1,image1 in enumerate(grab4.astype(np.int)):
+        for seq1,image1 in enumerate(grab4):
             
             ob = open(allIms[image1],'r')
             lb = json.load(ob)
             ob.close()
+            
             if lb.get('meta') == None:
                 print('no meta')
                 continue
             tempName = lb['meta']['still_filename']
             tempName2 = day1.split('detection')[0]+tempName.split('data/')[1]
-            fullIm = cv.imread(tempName2)
             if lb['meta']['bboxes'] == []:
                 continue
             bboxI = np.squeeze(lb['meta']['bboxes'])
@@ -81,6 +55,8 @@ for day1 in out:
             allConf = []
             allBbx = []
             writeIM = False
+            init_base.openim(tempName2)
+            
             for bbx in bboxI:
                 bbx = np.squeeze(bbx)
                 if len(np.shape(bbx)) == 2:
@@ -95,13 +71,10 @@ for day1 in out:
                         pt1 = (int(bbx2[2][1]*(2592)),int(bbx2[2][0]*(1944)))
                         pt2 = (int(bbx2[2][3]*(2592)),int(bbx2[2][2]*(1944)))
                         allBbx.append([pt1[0],pt1[1],pt2[0],pt2[1]])
+                        
                         if init_base.writevid:
-                            clr = (195,100,100,100)
-                            thickness= 20
-                            fullIm = cv.rectangle(fullIm, pt1, pt2, clr, thickness)
-                            org1 = (pt1[0]-25,pt1[1]-25)
-                            tP = str(np.round(bbx[1],3))+'%'
-                            fullIm = cv.putText(fullIm, tP, org1, font,2, color, 2, cv.LINE_AA)
+                            init_base.addBbx((pt1,pt2),bbx)
+ 
                 else:
                     if np.shape(bboxI) == (3,) and np.shape(bbx) == ():
                         bbx = bboxI
@@ -117,70 +90,27 @@ for day1 in out:
                     allBbx.append([pt1[0],pt1[1],pt2[0],pt2[1]])
                     
                     if init_base.writevid:
-                        clr = (195,100,100,100)
-                        thickness= 20
-                        fullIm = cv.rectangle(fullIm, pt1, pt2, clr, thickness)
-                        org1 = (pt1[0]-25,pt1[1]-25)
-                        tP = str(np.round(bbx[1],3))+'%'
-                        fullIm = cv.putText(fullIm, tP, org1, font,2, color, 2, cv.LINE_AA)
+                        init_base.addBbx((pt1,pt2),bbx)
 
                     if oH:
                         continue
             if writeIM:
                 if init_base.writevid:
-                    tP = day1.split('/')[-2]+' '+lb['meta']['datetime'].split(' ')[1]
-                    fullIm = cv.putText(fullIm, tP, org, font,fontScale, color, thickness, cv.LINE_AA)
-                    vidOut.write(fullIm)
-                    vidCount+=1
-                    if vidCount >= 400:
-                        vidM+=1
-                        vidCount = 0
-                        vidOut.release()
-                        vidOut = cv.VideoWriter(vidDir1+AP_ID+'_%02d.avi'%vidM,cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
-            
-            
-                tempKey['unitID'].append(AP_ID)
-                tempKey['camID'].append(day1.split('/')[-3])
-                tempKey['datetime'].append(lb['meta']['datetime'])
-                tempKey['date'].append(lb['meta']['datetime'].split(' ')[0])
-                tempKey['time'].append(lb['meta']['datetime'].split(' ')[1])
-                tempKey['timestamp'].append(datetime.datetime.fromisoformat(lb['meta']['datetime']).timestamp())
-                tempKey['image_filepath'].append(tempName2)
-                tempKey['json_filepath'].append(allIms[image1])
-                tempKey['confidence'].append(allConf)
-                tempKey['bbox'].append(allBbx)
-        
-        # Create list from dictionary 
-        allValues = []
-        for ind,ele in enumerate(tempKey['unitID']):
-            tempK = []
-            for nnmes in tempKey.keys():
-                tempK.append(tempKey[nnmes][ind])
-            allValues.append(tempK)
-        headers = ['unitID','camID','datetime','date','time','timestamp','image_filepath','json_filepath','confidence','bbox']
+                    init_base.videoUpdate(lb)
+                    
+                    init_base.vidCount+=1
+                    if init_base.vidCount >= 400:
+                        init_base.vidM+=1
+                        init_base.vidCount = 0
+                        init_base.vidOut.release()
+                        init_base.initializeVidOut()
 
-        tempCSV = init_base.csvDir+day1.split('/')[-5]+'_'+day1.split('/')[-3]+'_'+day1.split('/')[-2]+'.csv'
-        with open(tempCSV, 'w') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(headers)
-            for ele in allValues:
-                writer.writerow(ele)
-                
-        # Getting CWD and making new folder for videos 
-        figDir1 = os.getcwd()+'/APprocess/'+'APfigs/'
-        if not os.path.isdir(figDir1):os.makedirs(figDir1)
-        plt.figure(figsize=(6,3),dpi=200)
-        
-        tFirst = datetime.datetime.fromisoformat(tempKey['date'][0]+' 05:00').timestamp()
-        tLast = datetime.datetime.fromisoformat(tempKey['date'][0]+' 22:00').timestamp()
-        indx = np.arange(tFirst,tLast,60*30)
-        indx2 = np.arange(tFirst,tLast,60*120)
-        xll = ['%02d:%02d'%(datetime.datetime.fromtimestamp(ele).hour,datetime.datetime.fromtimestamp(ele).minute) for ele in indx2]
-        plt.hist(tempKey['timestamp'],indx,color=(0.25,0.25,0.25,0.5))
-        plt.xticks(np.arange(tFirst,tLast,60*120),xll)
-        plt.ylabel('Count')
-        plt.savefig(figDir1+tempCSV.split('/')[-1].split('.')[0]+'.pdf',dpi=200)
+                init_base.updateDict(allIms[image1],allConf,allBbx)
+
+        init_base.outputCSV()
+        init_base.outputFig()
+
             
-if init_base.writevid:
-    vidOut.release()
+    if init_base.writevid:
+        init_base.vidOut.release()
 
