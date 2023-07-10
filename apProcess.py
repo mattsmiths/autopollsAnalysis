@@ -1,6 +1,6 @@
-# Generating images in a new folder on desktop to preview bbxes and images
-# TODO: Potential to zip and transfer folder with other metrics over ssh
-
+'''
+Main script for obtaining potential directories, generating CSVs, figures, and videoss
+'''
 import cv2 as cv
 import numpy as np
 import json
