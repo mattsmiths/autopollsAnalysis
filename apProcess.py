@@ -216,7 +216,6 @@ for day1 in out:
         plt.xticks(np.arange(tFirst,tLast,60*120),xll)
         plt.ylabel('Count')
         plt.savefig(figDir1+tempCSV.split('/')[-1].split('.')[0]+'.pdf',dpi=200)
-        break
             
 if writeVid:
     vidOut.release()
