@@ -10,52 +10,16 @@ import os
 import argparse
 import csv
 from matplotlib import pyplot as plt
+import apUtils
 
 
-## interpret command line flags ##
-def cmdline_run():
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '-d', '--directory_main', default='/Volumes/Untitled/',
-        help='save single images when triggered')
-    parser.add_argument(
-        '-r', '--resolution', default='small',
-        help='set camera resolution "small" default, options: small, medium, medium2, large')
-    parser.add_argument(
-        '-t', '--threshold', default=0.45,
-        help='inclusion threshold as proportion out of 1, default: 0.45')
-    parser.add_argument(
-        '-v', '--videoSample', default=False, action='store_true',
-        help='Run selected model across example video, creates new csv')
-    args = parser.parse_args()
-    return args
-
-# Grab any command line flags
-args = cmdline_run()
-thresh = args.threshold
-getDir = args.directory_main
-writeVid = args.videoSample
 
 
-# Getting CWD and making new folder for videos 
-csvDir1 = os.getcwd()+'/APprocess/'+'APcsv/'
-if not os.path.isdir(csvDir1):os.makedirs(csvDir1)
-for ele in range(0,3):print('')
-print('Writing files to: '+os.getcwd()+'/APprocess/')
-for ele in range(0,2):print('')
-# Getting directories for a specific unit
-print('###########################')
-print('### Mapping directories ###')
-print('###########################')
+init_base = apUtils.intialize()
+out = init_base.mapDirectory()
 
-out = [x[0] for x in os.walk(getDir) \
-    if (x[0].find('detections')!= -1 \
-    and x[0].find('.Trash') == -1 \
-    and x[0].find('_4/2') != -1)]
-for ele in range(0,1):print('')
-print('    Done mapping    ')
-print('    '+str(len(out))+' directories found')
-for ele in range(0,1):print('')
+
+
 
 # For each day directory populataed with detection data
 for day1 in out:
@@ -83,7 +47,7 @@ for day1 in out:
         AP_ID = day1.split('/')[-5]
         
         # If writing video then prepare the file to write to
-        if writeVid:
+        if init_base.writevid:
             font = cv.FONT_HERSHEY_SIMPLEX
             org = (100, 100)
             fontScale = 4
@@ -121,7 +85,7 @@ for day1 in out:
                 bbx = np.squeeze(bbx)
                 if len(np.shape(bbx)) == 2:
                     for bbx2 in bbx:
-                        if bbx2[1] < float(thresh):
+                        if bbx2[1] < float(init_base.thresh):
                             break
                         
                         # Append to list of high confidence detections, write image to vid if applicable
@@ -131,7 +95,7 @@ for day1 in out:
                         pt1 = (int(bbx2[2][1]*(2592)),int(bbx2[2][0]*(1944)))
                         pt2 = (int(bbx2[2][3]*(2592)),int(bbx2[2][2]*(1944)))
                         allBbx.append([pt1[0],pt1[1],pt2[0],pt2[1]])
-                        if writeVid:
+                        if init_base.writevid:
                             clr = (195,100,100,100)
                             thickness= 20
                             fullIm = cv.rectangle(fullIm, pt1, pt2, clr, thickness)
@@ -142,7 +106,7 @@ for day1 in out:
                     if np.shape(bboxI) == (3,) and np.shape(bbx) == ():
                         bbx = bboxI
                         oH = True
-                    if bbx[1] < float(thresh):
+                    if bbx[1] < float(init_base.thresh):
                         break
                     
                     allConf.append(bbx[1])
@@ -152,7 +116,7 @@ for day1 in out:
                     pt2 = (int(bbx[2][3]*(2592)),int(bbx[2][2]*(1944)))
                     allBbx.append([pt1[0],pt1[1],pt2[0],pt2[1]])
                     
-                    if writeVid:
+                    if init_base.writevid:
                         clr = (195,100,100,100)
                         thickness= 20
                         fullIm = cv.rectangle(fullIm, pt1, pt2, clr, thickness)
@@ -163,7 +127,7 @@ for day1 in out:
                     if oH:
                         continue
             if writeIM:
-                if writeVid:
+                if init_base.writevid:
                     tP = day1.split('/')[-2]+' '+lb['meta']['datetime'].split(' ')[1]
                     fullIm = cv.putText(fullIm, tP, org, font,fontScale, color, thickness, cv.LINE_AA)
                     vidOut.write(fullIm)
@@ -195,7 +159,7 @@ for day1 in out:
             allValues.append(tempK)
         headers = ['unitID','camID','datetime','date','time','timestamp','image_filepath','json_filepath','confidence','bbox']
 
-        tempCSV = csvDir1+day1.split('/')[-5]+'_'+day1.split('/')[-3]+'_'+day1.split('/')[-2]+'.csv'
+        tempCSV = init_base.csvDir+day1.split('/')[-5]+'_'+day1.split('/')[-3]+'_'+day1.split('/')[-2]+'.csv'
         with open(tempCSV, 'w') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(headers)
@@ -217,6 +181,6 @@ for day1 in out:
         plt.ylabel('Count')
         plt.savefig(figDir1+tempCSV.split('/')[-1].split('.')[0]+'.pdf',dpi=200)
             
-if writeVid:
+if init_base.writevid:
     vidOut.release()
 
