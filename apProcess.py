@@ -52,6 +52,7 @@ for day1 in out:
                 print('no meta')
                 continue
             tempName = lb['meta']['still_filename']
+            if tempName.find('data/')== -1:continue
             tempName2 = day1.split('detection')[0]+tempName.split('data/')[1]
             if lb['meta']['bboxes'] == []:
                 continue
