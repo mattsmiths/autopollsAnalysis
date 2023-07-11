@@ -16,9 +16,8 @@ import apUtils
 
 
 init_base = apUtils.intialize()
+
 out = init_base.mapDirectory()
-
-
 
 # For each day directory populataed with detection data
 for day1 in out:
@@ -27,6 +26,8 @@ for day1 in out:
     # Checking that the directory is for a camera 
     if day1.split('/')[-3].find('1_') != -1:
         init_base.initializeCSV(day1)
+        chkCSV = init_base.csvCheck()
+        if chkCSV:continue
         
         allIms = glob.glob(day1+'*.json')
         allIms.sort()
@@ -35,12 +36,16 @@ for day1 in out:
         # If writing video then prepare the file to write to
         if init_base.writevid:
             init_base.initializeVidOut()
-        
+            
         # For all images in a specific unit / camera / day
         for seq1,image1 in enumerate(grab4):
             
             ob = open(allIms[image1],'r')
-            lb = json.load(ob)
+            try:
+                lb = json.load(ob)
+            except:
+                ob.close()
+                continue
             ob.close()
             
             if lb.get('meta') == None:

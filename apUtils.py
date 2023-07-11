@@ -98,6 +98,14 @@ class intialize:
         self.videoName = self.vidDir1+self.AP_ID+'-'+self.cam_ID+'-'+self.date1+'-%02d.avi'%self.vidM
         self.vidOut = cv.VideoWriter(self.videoName,cv.VideoWriter_fourcc('M','J','P','G'),30,(2592,1944))
     
+    def csvCheck(self):
+        self.csvDir = os.getcwd()+'/APprocess/'+'APcsv/'+self.AP_ID+'/'+self.cam_ID+'/'
+        tempCSV = self.csvDir+self.AP_ID+'_'+self.cam_ID+'_'+self.dir1.split('/')[-2]+'.csv'
+        self.csvfilename = tempCSV
+        if not os.path.isdir(self.csvDir):os.makedirs(self.csvDir)
+        lout = os.path.isfile(self.csvfilename)
+        if lout:print('file already exisits- skipping: '+self.csvfilename)
+        return lout
     
     def addBbx(self,bbxes,inferenceOut):
 
@@ -124,7 +132,7 @@ class intialize:
         self.csvdict['json_filepath'].append(jsonDir)
         self.csvdict['confidence'].append(allConf)
         self.csvdict['bbox'].append(allBbx)
-        
+    
     def outputCSV(self):
         # Create list from dictionary 
         allValues = []
@@ -135,12 +143,8 @@ class intialize:
             allValues.append(tempK)
        #headers = ['unitID','camID','datetime','date','time','timestamp','image_filepath','json_filepath','confidence','bbox']
         headers = [ele for ele in self.csvdict.keys()]
-        self.csvDir = os.getcwd()+'/APprocess/'+'APcsv/'+self.AP_ID+'/'+self.cam_ID+'/'
-        tempCSV = self.csvDir+self.AP_ID+'_'+self.cam_ID+'_'+self.dir1.split('/')[-2]+'.csv'
-        self.csvfilename = tempCSV
-        if not os.path.isdir(self.csvDir):os.makedirs(self.csvDir)
         
-        with open(tempCSV, 'w') as csvfile:
+        with open(self.csvfilename, 'w') as csvfile:
             writer = csv.writer(csvfile)
             writer.writerow(headers)
             for ele in allValues:
