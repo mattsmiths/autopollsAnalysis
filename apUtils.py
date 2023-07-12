@@ -11,7 +11,7 @@ from matplotlib import pyplot as plt
 class intialize:
     
     def __init__(self):
-
+        ''' initialize command line parameters, create directories, set variables'''
         parser = argparse.ArgumentParser()
         parser.add_argument(
             '-d', '--directory_main', default='/Volumes/Untitled/',
@@ -73,6 +73,7 @@ class intialize:
         self.currim = cv.imread(impath)
 
     def initializeCSV(self,dir1):
+        '''Creating dictionary for detections that will be used to create CSV'''
         self.csvdict = {}
         self.csvdict['unitID'] = []
         self.csvdict['camID'] = []
@@ -92,6 +93,7 @@ class intialize:
         self.dir1 = dir1
         
     def initializeVidOut(self):
+        '''Create video directory and video object to write to'''
         self.vidDir1 = os.getcwd()+'/APprocess/'+'APvideos/'+self.AP_ID+'/'+self.cam_ID+'/'
         if not os.path.isdir(self.vidDir1):os.makedirs(self.vidDir1)
         self.date1 = self.dir1.split('/')[-2]

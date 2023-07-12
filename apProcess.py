@@ -14,9 +14,10 @@ import apUtils
 
 
 
-
+# Reading command line prompts / creating variables
 init_base = apUtils.intialize()
 
+# Map out directories within "detections" that have .json files
 out = init_base.mapDirectory()
 
 # For each day directory populataed with detection data
@@ -65,6 +66,7 @@ for day1 in out:
             
             for bbx in bboxI:
                 bbx = np.squeeze(bbx)
+                # Boxes have inconsistent sizes
                 if len(np.shape(bbx)) == 2:
                     for bbx2 in bbx:
                         if bbx2[1] < float(init_base.thresh):
@@ -100,6 +102,7 @@ for day1 in out:
 
                     if oH:
                         continue
+            # If writing videos, check length and create new if over set limit of frames
             if writeIM:
                 if init_base.writevid:
                     init_base.videoUpdate(lb)
