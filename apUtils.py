@@ -17,7 +17,7 @@ class intialize:
             '-d', '--directory_main', default='/Volumes/Untitled/',
             help='save single images when triggered')
         parser.add_argument(
-            '-f', '--resolution', default='small',
+            '-f', '--figures', default='small',
             help='generate output figures of detections across time')
         parser.add_argument(
             '-t', '--threshold', default=0.45,
@@ -30,6 +30,7 @@ class intialize:
         self.thresh = args.threshold
         self.getdir = args.directory_main
         self.writevid = args.videoSample
+        self.genFig = args.figures
         
 
 
