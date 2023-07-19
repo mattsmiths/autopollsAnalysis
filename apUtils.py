@@ -6,7 +6,7 @@ import datetime
 import os
 import argparse
 import csv
-from matplotlib import pyplot as plt
+
 
 class intialize:
     
@@ -17,8 +17,8 @@ class intialize:
             '-d', '--directory_main', default='/Volumes/Untitled/',
             help='save single images when triggered')
         parser.add_argument(
-            '-r', '--resolution', default='small',
-            help='set camera resolution "small" default, options: small, medium, medium2, large')
+            '-f', '--resolution', default='small',
+            help='generate output figures of detections across time')
         parser.add_argument(
             '-t', '--threshold', default=0.45,
             help='inclusion threshold as proportion out of 1, default: 0.45')
@@ -153,6 +153,7 @@ class intialize:
                 writer.writerow(ele)
                 
     def outputFig(self):
+        from matplotlib import pyplot as plt
         # Getting CWD and making new folder for videos 
         figDir1 = os.getcwd()+'/APprocess/'+'APfigs/'+self.AP_ID+'/'+self.cam_ID+'/'
         self.figdir = figDir1
