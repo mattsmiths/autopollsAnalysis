@@ -117,7 +117,7 @@ for day1 in out:
                 init_base.updateDict(allIms[image1],allConf,allBbx)
         if len(init_base.csvdict['unitID']) > 0:
             init_base.outputCSV()
-            if init_base.genFig():
+            if init_base.genFig:
                 init_base.outputFig()
 
             
