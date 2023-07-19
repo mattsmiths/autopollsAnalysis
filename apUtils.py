@@ -17,7 +17,7 @@ class intialize:
             '-d', '--directory_main', default='/Volumes/Untitled/',
             help='save single images when triggered')
         parser.add_argument(
-            '-f', '--figures', default='small',
+            '-f', '--figures', default=False, action='store_true',
             help='generate output figures of detections across time')
         parser.add_argument(
             '-t', '--threshold', default=0.45,
