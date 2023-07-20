@@ -122,7 +122,8 @@ class intialize:
         self.detection = lb
         tP = self.dir1.split('/')[-2]+' '+lb['meta']['datetime'].split(' ')[1]
         fullIm = cv.putText(self.currim, tP, self.org, self.font,self.fontScale, self.color, self.textthickness, cv.LINE_AA)
-        self.vidOut.write(fullIm)
+        if fullIm.shape == (1944,2592,3):
+            self.vidOut.write(fullIm)
         
     def updateDict(self,jsonDir,allConf,allBbx):
         self.csvdict['unitID'].append(self.AP_ID)
