@@ -33,7 +33,7 @@ for day1 in out:
         allIms = glob.glob(day1+'*.json')
         allIms.sort()
         grab4 = np.arange(0,len(allIms))
-
+        
         # If writing video then prepare the file to write to
         if init_base.writevid:
             init_base.initializeVidOut()

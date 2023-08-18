@@ -14,7 +14,7 @@ class intialize:
         ''' initialize command line parameters, create directories, set variables'''
         parser = argparse.ArgumentParser()
         parser.add_argument(
-            '-d', '--directory_main', default='/Volumes/Untitled/',
+            '-d', '--directory_main', default='/Users/matthewsmith/APprocess/',
             help='save single images when triggered')
         parser.add_argument(
             '-r', '--resolution', default='small',
@@ -25,11 +25,15 @@ class intialize:
         parser.add_argument(
             '-v', '--videoSample', default=False, action='store_true',
             help='Run selected model across example video, creates new csv')
+        parser.add_argument(
+            '-b', '--binsize', default=300,
+            help='Bin size to calculate detection rate')
         args = parser.parse_args()
         
         self.thresh = args.threshold
         self.getdir = args.directory_main
         self.writevid = args.videoSample
+        self.detectRate = args.binsize
         
 
 
@@ -170,3 +174,26 @@ class intialize:
         tempPDF = self.figdir+self.AP_ID+'_'+self.cam_ID+'_'+self.dir1.split('/')[-2]+'.pdf'
         self.pdffilename = tempPDF
         plt.savefig(tempPDF,dpi=200)
+        
+
+    def mapCSV(self):
+        # Getting CWD and making new folder for videos
+        basedir = os.getcwd()+'/APprocess/Rates/'
+        self.detectRateFile = basedir 
+        if not os.path.isdir(basedir):os.makedirs(basedir)
+        for ele in range(0,3):print('')
+        print('Writing files to: '+os.getcwd()+'/APprocess/Rates/')
+        for ele in range(0,2):print('')
+        # Getting directories for a specific unit
+        print('###########################')
+        print('### Mapping directories ###')
+        print('###########################')
+        print(self.getdir)
+        out = [x[0] for x in os.walk(self.getdir) \
+            if (x[0].find('csv')!= -1) \
+                and x[0].find('_4')!=-1]
+        for ele in range(0,1):print('')
+        print('    Done mapping    ')
+        print('    '+str(len(out))+' directories found')
+        for ele in range(0,1):print('')
+        return out
