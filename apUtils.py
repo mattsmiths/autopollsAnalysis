@@ -6,7 +6,7 @@ import datetime
 import os
 import argparse
 import csv
-from matplotlib import pyplot as plt
+
 
 class intialize:
     
@@ -17,8 +17,8 @@ class intialize:
             '-d', '--directory_main', default='/Users/matthewsmith/APprocess/',
             help='save single images when triggered')
         parser.add_argument(
-            '-r', '--resolution', default='small',
-            help='set camera resolution "small" default, options: small, medium, medium2, large')
+            '-f', '--figures', default=False, action='store_true',
+            help='generate output figures of detections across time')
         parser.add_argument(
             '-t', '--threshold', default=0.45,
             help='inclusion threshold as proportion out of 1, default: 0.45')
@@ -34,6 +34,7 @@ class intialize:
         self.getdir = args.directory_main
         self.writevid = args.videoSample
         self.detectRate = args.binsize
+        self.genFig = args.figures
         
 
 
@@ -125,7 +126,8 @@ class intialize:
         self.detection = lb
         tP = self.dir1.split('/')[-2]+' '+lb['meta']['datetime'].split(' ')[1]
         fullIm = cv.putText(self.currim, tP, self.org, self.font,self.fontScale, self.color, self.textthickness, cv.LINE_AA)
-        self.vidOut.write(fullIm)
+        if fullIm.shape == (1944,2592,3):
+            self.vidOut.write(fullIm)
         
     def updateDict(self,jsonDir,allConf,allBbx):
         self.csvdict['unitID'].append(self.AP_ID)
@@ -157,6 +159,7 @@ class intialize:
                 writer.writerow(ele)
                 
     def outputFig(self):
+        from matplotlib import pyplot as plt
         # Getting CWD and making new folder for videos 
         figDir1 = os.getcwd()+'/APprocess/'+'APfigs/'+self.AP_ID+'/'+self.cam_ID+'/'
         self.figdir = figDir1
