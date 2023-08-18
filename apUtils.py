@@ -111,7 +111,10 @@ class intialize:
         self.csvfilename = tempCSV
         if not os.path.isdir(self.csvDir):os.makedirs(self.csvDir)
         lout = os.path.isfile(self.csvfilename)
-        if lout:print('file already exists- skipping: '+self.csvfilename)
+        if lout:
+            print('file already exists- skipping: '+self.csvfilename)
+        else:
+            print('Processing - '+self.csvfilename)
         return lout
     
     def addBbx(self,bbxes,inferenceOut):
