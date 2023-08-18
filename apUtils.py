@@ -14,7 +14,7 @@ class intialize:
         ''' initialize command line parameters, create directories, set variables'''
         parser = argparse.ArgumentParser()
         parser.add_argument(
-            '-d', '--directory_main', default='/Users/matthewsmith/APprocess/',
+            '-d', '--directory_main', default='/Volumes/Untitled/',
             help='save single images when triggered')
         parser.add_argument(
             '-f', '--figures', default=False, action='store_true',
@@ -129,13 +129,13 @@ class intialize:
         if fullIm.shape == (1944,2592,3):
             self.vidOut.write(fullIm)
         
-    def updateDict(self,jsonDir,allConf,allBbx):
+    def updateDict(self,jsonDir,allConf,allBbx,dtetime):
         self.csvdict['unitID'].append(self.AP_ID)
         self.csvdict['camID'].append(self.dir1.split('/')[-3])
-        self.csvdict['datetime'].append(self.detection['meta']['datetime'])
-        self.csvdict['date'].append(self.detection['meta']['datetime'].split(' ')[0])
-        self.csvdict['time'].append(self.detection['meta']['datetime'].split(' ')[1])
-        self.csvdict['timestamp'].append(datetime.datetime.fromisoformat(self.detection['meta']['datetime']).timestamp())
+        self.csvdict['datetime'].append(dtetime)
+        self.csvdict['date'].append(dtetime.split(' ')[0])
+        self.csvdict['time'].append(dtetime.split(' ')[1])
+        self.csvdict['timestamp'].append(datetime.datetime.fromisoformat(dtetime).timestamp())
         self.csvdict['image_filepath'].append(self.currimpath)
         self.csvdict['json_filepath'].append(jsonDir)
         self.csvdict['confidence'].append(allConf)
