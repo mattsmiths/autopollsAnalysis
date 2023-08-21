@@ -52,12 +52,16 @@ for filez in csvList:
 
             tempCSV = {}
             tempCSV['detectionRate'] = rateCount
+            tempCSV['UnitID'] = []
+            tempCSV['camID'] = []
             tempCSV['time'] = []
             tempCSV['date'] = []
             tempCSV['timestamp'] = []
             tempCSV['datetime'] = []
             for tt in bins:
                 lg3 = datetime.datetime.fromtimestamp(tt).isoformat().split('T')
+                tempCSV['UnitID'].append(file1[:-19])
+                tempCSV['camID'].append(file1[-14])
                 tempCSV['time'].append(lg3[1])
                 tempCSV['date'].append(lg3[0])
                 tempCSV['timestamp'].append(tt)

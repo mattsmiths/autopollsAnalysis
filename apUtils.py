@@ -194,6 +194,8 @@ class intialize:
         print('###########################')
         print('### Mapping directories ###')
         print('###########################')
+        print('')
+        print('Searching for CSVs within:')
         print(self.getdir)
         out = [x[0] for x in os.walk(self.getdir) \
             if (x[0].find('csv')!= -1) \
