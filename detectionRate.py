@@ -60,7 +60,8 @@ for filez in csvList:
             tempCSV['datetime'] = []
             for tt in bins:
                 lg3 = datetime.datetime.fromtimestamp(tt).isoformat().split('T')
-                tempCSV['UnitID'].append(file1[:-19])
+                ttname = file1.split('/')[-1]
+                tempCSV['UnitID'].append(ttname[:-19])
                 tempCSV['camID'].append(file1[-14])
                 tempCSV['time'].append(lg3[1])
                 tempCSV['date'].append(lg3[0])
